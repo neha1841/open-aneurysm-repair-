@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Six-Seven's Surgery Lab</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f0f0; text-align: center; }
+  #gameArea { margin: 20px auto; width: 600px; height: 500px; background: #fff; border: 2px solid #333; position: relative; }
+  .tool { width: 80px; margin: 5px; cursor: grab; }
+  #toolbox { margin: 10px; display: flex; justify-content: center; }
+  #instructions { font-weight: bold; margin: 10px; }
+  #patient { width: 200px; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); }
+  .highlight { border: 3px dashed green; }
+  #confetti { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<h1>Dr. Six-Seven's Surgery Lab</h1>
+<div id="instructions">Welcome! Follow Dr. Six-Seven's instructions.</div>
+
+<div id="gameArea">
+  <img id="patient" src="https://i.imgur.com/3Kx7yA3.png" alt="Patient">
+  <canvas id="confetti"></canvas>
+</div>
+
+<div id="toolbox">
+  <img src="https://i.imgur.com/nf3yxou.png" alt="Scalpel" class="tool" id="scalpel" draggable="true">
+  <img src="https://i.imgur.com/3b8I3jq.png" alt="Clamp" class="tool" id="clamp" draggable="true">
+  <img src="https://i.imgur.com/y1f7r5W.png" alt="Sutures" class="tool" id="sutures" draggable="true">
+  <img src="https://i.imgur.com/mYJXfrU.png" alt="Cupcake" class="tool" id="cupcake" draggable="true">
+</div>
+
+<script>
+let currentStep = 0;
+const instructions = [
+  "Step 1: Wash your hands and put on gloves! Click the scalpel when ready to start surgery.",
+  "Step 2: Grab the correct tools: scalpel, clamp, sutures. Leave the cupcake!",
+  "Step 3: Make a careful incision on the patient's abdomen.",
+  "Step 4: Locate the aneurysm and place the clamps correctly.",
+  "Step 5: Stitch the graft along the dotted line.",
+  "Step 6: Close the incision carefully and finish surgery!"
+];
+
+const gameArea = document.getElementById("gameArea");
+const instructionDiv = document.getElementById("instructions");
+const scalpel = document.getElementById("scalpel");
+const clamp = document.getElementById("clamp");
+const sutures = document.getElementById("sutures");
+const cupcake = document.getElementById("cupcake");
+
+const tools = { scalpel, clamp, sutures, cupcake };
+
+// Simple step progression
+function nextStep() {
+  currentStep++;
+  if(currentStep < instructions.length) {
+    instructionDiv.textContent = "Dr. Six-Seven: " + instructions[currentStep];
+  } else {
+    instructionDiv.textContent = "🎉 Surgery complete! Dr. Six-Seven says: Excellent job!";
+    launchConfetti();
+  }
+}
+
+// Drag and drop handling
+Object.values(tools).forEach(tool => {
+  tool.addEventListener('dragstart', e => {
+    e.dataTransfer.setData("text", e.target.id);
+  });
+});
+
+gameArea.addEventListener('dragover', e => e.preventDefault());
+gameArea.addEventListener('drop', e => {
+  e.preventDefault();
+  const id = e.dataTransfer.getData("text");
+  const tool = document.getElementById(id);
+
+  // Step logic
+  if(currentStep === 0 && id === "scalpel") nextStep();
+  else if(currentStep === 1 && (id === "scalpel" || id === "clamp" || id === "sutures")) nextStep();
+  else if(currentStep === 1 && id === "cupcake") alert("Dr. Six-Seven: Nope! Leave the cupcake!");
+  else if(currentStep === 2 && id === "scalpel") nextStep();
+  else if(currentStep === 3 && id === "clamp") nextStep();
+  else if(currentStep === 4 && id === "sutures") nextStep();
+  else if(currentStep === 5) nextStep();
+  else alert("Dr. Six-Seven: That’s not right, try the correct tool!");
+});
+
+// Confetti effect
+function launchConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = gameArea.clientWidth;
+  canvas.height = gameArea.clientHeight;
+
+  let confetti = [];
+  for(let i=0;i<100;i++){
+    confetti.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*6+2, d: Math.random()*100});
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(c=>{
+      ctx.beginPath();
+      ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+      ctx.fillStyle = "hsl(" + Math.random()*360 + ", 100%, 50%)";
+      ctx.fill();
+      c.y += Math.cos(c.d)+1+ c.r/2;
+      c.x += Math.sin(c.d);
+      if(c.y>canvas.height) c.y=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// Start game
+instructionDiv.textContent = "Dr. Six-Seven: " + instructions[currentStep];
+</script>
+
+</body>
+</html>
