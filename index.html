@@ -6,11 +6,11 @@
 <title>Dr. Six-Seven's Surgery Lab</title>
 <style>
   body { font-family: Arial, sans-serif; background: #f0f0f0; text-align: center; }
-  #gameArea { margin: 20px auto; width: 600px; height: 500px; background: #fff; border: 2px solid #333; position: relative; }
-  .tool { width: 80px; margin: 5px; cursor: grab; }
-  #toolbox { margin: 10px; display: flex; justify-content: center; }
+  #gameArea { margin: 20px auto; width: 600px; height: 500px; background: #fff; border: 2px solid #333; position: relative; overflow: hidden; }
+  .tool { width: 80px; height: 50px; margin: 5px; cursor: grab; display: inline-block; line-height: 50px; color: white; font-weight: bold; border-radius: 8px; user-select: none; }
+  #toolbox { margin: 10px; }
   #instructions { font-weight: bold; margin: 10px; }
-  #patient { width: 200px; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); }
+  #patient { width: 200px; height: 200px; background: #ff9999; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #333; }
   .highlight { border: 3px dashed green; }
   #confetti { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
 </style>
@@ -21,25 +21,25 @@
 <div id="instructions">Welcome! Follow Dr. Six-Seven's instructions.</div>
 
 <div id="gameArea">
-  <img id="patient" src="https://i.imgur.com/3Kx7yA3.png" alt="Patient">
+  <div id="patient">Patient</div>
   <canvas id="confetti"></canvas>
 </div>
 
 <div id="toolbox">
-  <img src="https://i.imgur.com/nf3yxou.png" alt="Scalpel" class="tool" id="scalpel" draggable="true">
-  <img src="https://i.imgur.com/3b8I3jq.png" alt="Clamp" class="tool" id="clamp" draggable="true">
-  <img src="https://i.imgur.com/y1f7r5W.png" alt="Sutures" class="tool" id="sutures" draggable="true">
-  <img src="https://i.imgur.com/mYJXfrU.png" alt="Cupcake" class="tool" id="cupcake" draggable="true">
+  <div class="tool" id="scalpel" draggable="true" style="background: #444;">Scalpel</div>
+  <div class="tool" id="clamp" draggable="true" style="background: #0077cc;">Clamp</div>
+  <div class="tool" id="sutures" draggable="true" style="background: #22cc22;">Sutures</div>
+  <div class="tool" id="cupcake" draggable="true" style="background: #cc22cc;">Cupcake</div>
 </div>
 
 <script>
 let currentStep = 0;
 const instructions = [
-  "Step 1: Wash your hands and put on gloves! Click the scalpel when ready to start surgery.",
+  "Step 1: Wash your hands and get ready. Click the scalpel when ready to start surgery.",
   "Step 2: Grab the correct tools: scalpel, clamp, sutures. Leave the cupcake!",
-  "Step 3: Make a careful incision on the patient's abdomen.",
+  "Step 3: Make a careful incision on the patient's abdomen by dropping the scalpel.",
   "Step 4: Locate the aneurysm and place the clamps correctly.",
-  "Step 5: Stitch the graft along the dotted line.",
+  "Step 5: Stitch the graft along the dotted line using the sutures.",
   "Step 6: Close the incision carefully and finish surgery!"
 ];
 
@@ -52,7 +52,7 @@ const cupcake = document.getElementById("cupcake");
 
 const tools = { scalpel, clamp, sutures, cupcake };
 
-// Simple step progression
+// Update instructions
 function nextStep() {
   currentStep++;
   if(currentStep < instructions.length) {
@@ -63,7 +63,7 @@ function nextStep() {
   }
 }
 
-// Drag and drop handling
+// Drag and drop
 Object.values(tools).forEach(tool => {
   tool.addEventListener('dragstart', e => {
     e.dataTransfer.setData("text", e.target.id);
@@ -74,9 +74,7 @@ gameArea.addEventListener('dragover', e => e.preventDefault());
 gameArea.addEventListener('drop', e => {
   e.preventDefault();
   const id = e.dataTransfer.getData("text");
-  const tool = document.getElementById(id);
 
-  // Step logic
   if(currentStep === 0 && id === "scalpel") nextStep();
   else if(currentStep === 1 && (id === "scalpel" || id === "clamp" || id === "sutures")) nextStep();
   else if(currentStep === 1 && id === "cupcake") alert("Dr. Six-Seven: Nope! Leave the cupcake!");
@@ -115,7 +113,7 @@ function launchConfetti() {
   draw();
 }
 
-// Start game
+// Start
 instructionDiv.textContent = "Dr. Six-Seven: " + instructions[currentStep];
 </script>
 
